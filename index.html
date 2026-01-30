@@ -1,807 +1,791 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bisection Method Explorer</title>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --text:#e9ecf5;
+      --muted:#aab3d1;
+      --line:#2a355e;
+      --accent:#6aa9ff;
+      --ok:#2dd4bf;
+      --bad:#fb7185;
+      --warn:#fbbf24;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 30% 10%, #17224a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1100px;
+      margin:24px auto;
+      padding:0 16px 32px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:22px;
+      letter-spacing:0.2px;
+    }
+    .sub{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.4;
+      font-size:14px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap:14px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;
+      padding:14px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.28);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:15px;
+      color:var(--text);
+      font-weight:650;
+    }
+    label{
+      display:block;
+      margin:10px 0 6px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    input{
+      width:100%;
+      padding:10px 11px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.18);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input:focus{
+      border-color: rgba(106,169,255,0.55);
+      box-shadow: 0 0 0 3px rgba(106,169,255,0.12);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .row3{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .row, .row3{grid-template-columns:1fr}
+    }
+    .btns{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    button{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.18);
+      color:var(--text);
+      padding:9px 12px;
+      border-radius:12px;
+      font-weight:650;
+      font-size:13px;
+    }
+    button:hover{ border-color: rgba(106,169,255,0.55); }
+    button:disabled{
+      opacity:0.45;
+      cursor:not-allowed;
+      border-color: rgba(255,255,255,0.12);
+    }
+    .status{
+      margin-top:12px;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      font-size:13px;
+      line-height:1.35;
+      color:var(--muted);
+      min-height:44px;
+      white-space:pre-wrap;
+    }
+    .status.ok{ border-color: rgba(45,212,191,0.38); color:#c7fff5; }
+    .status.bad{ border-color: rgba(251,113,133,0.45); color:#ffe4ea; }
+    .status.warn{ border-color: rgba(251,191,36,0.45); color:#fff3c4; }
+
+    canvas{
+      width:100%;
+      height:360px;
+      display:block;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+    }
+    .hint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .pill{
+      display:inline-block;
+      padding:2px 8px;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px;
+      margin-right:6px;
+      font-size:12px;
+      color:var(--text);
+      background: rgba(0,0,0,0.16);
+    }
+    .tablewrap{
+      margin-top:14px;
+      overflow:auto;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width: 860px;
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      font-size:12.5px;
+      text-align:right;
+      white-space:nowrap;
+    }
+    th{
+      position:sticky;
+      top:0;
+      background: rgba(8,12,24,0.95);
+      color:var(--muted);
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-size:11px;
+    }
+    td:first-child, th:first-child{ text-align:center; }
+    .footer{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
   </style>
 </head>
+
 <body>
-<p class="p1">&lt;!doctype html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="utf-8" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Bisection Method Explorer&lt;/title&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>:root{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--bg:#0b1020;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--card:#121a33;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--text:#e9ecf5;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--muted:#aab3d1;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--line:#2a355e;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--accent:#6aa9ff;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--ok:#2dd4bf;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--bad:#fb7185;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>--warn:#fbbf24;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>*{box-sizing:border-box}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>body{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: radial-gradient(1200px 800px at 30% 10%, #17224a 0%, var(--bg) 55%);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.wrap{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>max-width:1100px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:24px auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:0 16px 32px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>h1{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:0 0 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:22px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing:0.2px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.sub{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:0 0 18px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height:1.4;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.grid{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1.05fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap:14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 900px){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>.grid{grid-template-columns:1fr}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.08);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 10px 35px rgba(0,0,0,0.28);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.card h2{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:0 0 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:15px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight:650;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>label{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:block;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin:10px 0 6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>input{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width:100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:10px 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.12);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.18);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>outline:none;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:14px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>input:focus{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-color: rgba(106,169,255,0.55);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 0 0 3px rgba(106,169,255,0.12);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.row{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap:10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.row3{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:grid;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: 1fr 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap:10px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 520px){</p>
-<p class="p1"><span class="Apple-converted-space">      </span>.row, .row3{grid-template-columns:1fr}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.btns{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:flex;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>flex-wrap:wrap;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>gap:10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top:12px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor:pointer;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.14);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.18);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:9px 12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight:650;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:13px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button:hover{ border-color: rgba(106,169,255,0.55); }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>button:disabled{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>opacity:0.45;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>cursor:not-allowed;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-color: rgba(255,255,255,0.12);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:10px 11px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.10);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.18);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:13px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height:1.35;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-height:44px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>white-space:pre-wrap;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status.ok{ border-color: rgba(45,212,191,0.38); color:#c7fff5; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status.bad{ border-color: rgba(251,113,133,0.45); color:#ffe4ea; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.status.warn{ border-color: rgba(251,191,36,0.45); color:#fff3c4; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>canvas{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width:100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>height:360px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:block;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.10);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.22);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.hint{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top:10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height:1.35;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.pill{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>display:inline-block;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:2px 8px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.12);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:999px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-right:6px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--text);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.16);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.tablewrap{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top:14px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>overflow:auto;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-radius:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border:1px solid rgba(255,255,255,0.10);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(0,0,0,0.18);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>table{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>width:100%;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-collapse:collapse;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>min-width: 860px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>th, td{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>padding:10px 10px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>border-bottom:1px solid rgba(255,255,255,0.08);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:12.5px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-align:right;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>white-space:nowrap;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>th{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>position:sticky;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>top:0;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>background: rgba(8,12,24,0.95);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-weight:700;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>text-transform:uppercase;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>letter-spacing:0.08em;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:11px;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>td:first-child, th:first-child{ text-align:center; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.footer{</p>
-<p class="p1"><span class="Apple-converted-space">      </span>margin-top:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>color:var(--muted);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>font-size:12px;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>line-height:1.35;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="wrap"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h1&gt;Bisection Method Explorer&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;p class="sub"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>Type a function &lt;span class="mono"&gt;f(x)&lt;/span&gt;, choose an interval &lt;span class="mono"&gt;[a,b]&lt;/span&gt; with opposite signs, then</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;b&gt;Step&lt;/b&gt; or &lt;b&gt;Run&lt;/b&gt; the bisection method. Syntax examples:</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="pill mono"&gt;x^3 - x - 2&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="pill mono"&gt;sin(x) - 0.5&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;span class="pill mono"&gt;exp(x) - 3&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>(use &lt;span class="mono"&gt;^&lt;/span&gt; for powers).</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/p&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="grid"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Inputs&lt;/h2&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;label for="expr"&gt;Function&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input id="expr" value="x^3 - x - 2" /&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="a"&gt;a&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input id="a" type="number" step="any" value="1" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="b"&gt;b&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input id="b" type="number" step="any" value="2" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="row3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="tol"&gt;Tolerance ε&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input id="tol" type="number" step="any" value="1e-6" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="maxIter"&gt;Max iterations&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input id="maxIter" type="number" step="1" min="1" value="50" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label for="speed"&gt;Run speed (ms)&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input id="speed" type="number" step="50" min="50" value="350" /&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="btns"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button id="checkBtn"&gt;Check interval&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button id="stepBtn" disabled&gt;Step&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button id="runBtn" disabled&gt;Run&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button id="stopBtn" disabled&gt;Stop&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;button id="resetBtn"&gt;Reset&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="status" class="status"&gt;Enter inputs, then click “Check interval”.&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="hint"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Stopping conditions used here:</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;span class="mono"&gt;|f(m)| = 0&lt;/span&gt; (exact),</p>
-<p class="p1"><span class="Apple-converted-space">          </span>or &lt;span class="mono"&gt;(b−a)/2 &amp;lt; ε&lt;/span&gt;,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>or max iterations reached.</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Graph&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;canvas id="plot"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="footer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>Markers: &lt;span class="mono"&gt;a&lt;/span&gt;, &lt;span class="mono"&gt;b&lt;/span&gt;, and midpoint &lt;span class="mono"&gt;m&lt;/span&gt;.</p>
-<p class="p1"><span class="Apple-converted-space">          </span>If your function has a vertical asymptote inside the window, the plot may look “broken” (that’s normal).</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card" style="margin-top:14px;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;Iterations&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="tablewrap"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;k&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;a&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;b&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;m=(a+b)/2&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;f(a)&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;f(m)&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">              </span>&lt;th&gt;(b−a)/2&lt;/th&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;/thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;tbody id="tbody"&gt;&lt;/tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="footer"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>Tip for teaching: have students predict whether the next interval becomes &lt;span class="mono"&gt;[a,m]&lt;/span&gt; or &lt;span class="mono"&gt;[m,b]&lt;/span&gt; based on the sign of &lt;span class="mono"&gt;f(m)&lt;/span&gt;.</p>
-<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Math parser/evaluator --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.js"&gt;&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const $ = (id) =&gt; document.getElementById(id);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const exprEl = $("expr");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const aEl = $("a");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const bEl = $("b");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const tolEl = $("tol");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const maxIterEl = $("maxIter");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const speedEl = $("speed");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const checkBtn = $("checkBtn");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const stepBtn<span class="Apple-converted-space">  </span>= $("stepBtn");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const runBtn <span class="Apple-converted-space">  </span>= $("runBtn");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const stopBtn<span class="Apple-converted-space">  </span>= $("stopBtn");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const resetBtn = $("resetBtn");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const statusEl = $("status");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const tbodyEl<span class="Apple-converted-space">  </span>= $("tbody");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>const canvas = $("plot");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>const ctx = canvas.getContext("2d");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>let compiled = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let state = null;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>let timer = null;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function setStatus(msg, kind="") {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>statusEl.className = "status" + (kind ? " " + kind : "");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>statusEl.textContent = msg;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function toNum(el, name) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const v = Number(el.value);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!Number.isFinite(v)) throw new Error(`${name} must be a number.`);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return v;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function fmt(x) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!Number.isFinite(x)) return "NaN";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// compact, readable numeric format</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const ax = Math.abs(x);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (ax !== 0 &amp;&amp; (ax &lt; 1e-4 || ax &gt;= 1e6)) return x.toExponential(6);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return x.toFixed(8).replace(/\.?0+$/,"");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function compileExpr(expr) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Disallow obvious assignment-like patterns; keep it simple &amp; classroom-safe</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (/=|;|function|while|for|const|let|var|return|import|export/i.test(expr)) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>throw new Error("Please enter a math expression only (no '=', ';', or code keywords).");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const node = math.parse(expr);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return node.compile();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function f(x) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const y = compiled.evaluate({ x });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return Number(y);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function clearTable() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tbodyEl.innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function addRow(k, a, b, m, fa, fm, half) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const tr = document.createElement("tr");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tr.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${k}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(a)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(b)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(m)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(fa)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(fm)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>&lt;td&gt;${fmt(half)}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>tbodyEl.appendChild(tr);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function stopRun() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (timer) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>clearInterval(timer);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>timer = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>runBtn.disabled = !state || state.done;</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function resetAll() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>compiled = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>state = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>clearTable();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("Enter inputs, then click “Check interval”.");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>drawPlot(); // still draw something if possible</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function checkInterval() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>clearTable();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const expr = exprEl.value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let a = toNum(aEl, "a");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let b = toNum(bEl, "b");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const tol = Math.abs(toNum(tolEl, "Tolerance ε"));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const maxIter = Math.max(1, Math.floor(toNum(maxIterEl, "Max iterations")));</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (a === b) throw new Error("a and b must be different.");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (tol === 0) throw new Error("Tolerance ε must be &gt; 0.");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Ensure a &lt; b (swap if needed)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (a &gt; b) [a, b] = [b, a];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>compiled = compileExpr(expr);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const fa = f(a);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const fb = f(b);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!Number.isFinite(fa) || !Number.isFinite(fb)) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>throw new Error("f(a) or f(b) is not a finite number. Try a different interval.");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// If an endpoint is exactly a root</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (fa === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state = { a, b, tol, maxIter, iter: 0, done: true };</p>
-<p class="p1"><span class="Apple-converted-space">          </span>addRow(0, a, b, a, fa, fa, (b - a)/2);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(`✅ f(a)=0 so x = ${fmt(a)} is an exact root.`, "ok");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (fb === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state = { a, b, tol, maxIter, iter: 0, done: true };</p>
-<p class="p1"><span class="Apple-converted-space">          </span>addRow(0, a, b, b, fb, fb, (b - a)/2);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(`✅ f(b)=0 so x = ${fmt(b)} is an exact root.`, "ok");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (fa * fb &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state = { a, b, tol, maxIter, iter: 0, done: true };</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`❌ Bisection needs opposite signs.\nHere: f(a)=${fmt(fa)}, f(b)=${fmt(fb)} (same sign).\nChoose a new interval where f(a)·f(b) &lt; 0.`,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"bad"</p>
-<p class="p1"><span class="Apple-converted-space">          </span>);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>state = { a, b, tol, maxIter, iter: 0, done: false };</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus(</p>
-<p class="p1"><span class="Apple-converted-space">          </span>`✅ Interval is valid.\nf(a)=${fmt(fa)}, f(b)=${fmt(fb)} (opposite signs).\nClick “Step” to start.`,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"ok"</p>
-<p class="p1"><span class="Apple-converted-space">        </span>);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stepBtn.disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>runBtn.disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>drawPlot();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function oneStep() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!state || state.done) return;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let { a, b, tol, maxIter } = state;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const m = (a + b) / 2;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const fa = f(a);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const fm = f(m);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const half = (b - a) / 2;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const k = state.iter + 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>addRow(k, a, b, m, fa, fm, half);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// stopping checks</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (fm === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state.done = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(`✅ Exact root found: x = ${fmt(m)} (because f(m)=0).`, "ok");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot(a, b, m, fm);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (half &lt; tol) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state.done = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`✅ Stopped: (b−a)/2 = ${fmt(half)} &lt; ε = ${fmt(tol)}.\nApprox root x ≈ ${fmt(m)} with error bound ≤ ${fmt(half)}.`,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"ok"</p>
-<p class="p1"><span class="Apple-converted-space">          </span>);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot(a, b, m, fm);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (k &gt;= maxIter) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>state.done = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>setStatus(</p>
-<p class="p1"><span class="Apple-converted-space">            </span>`⚠️ Max iterations reached (k=${k}).\nApprox root x ≈ ${fmt(m)} with current error bound ≤ ${fmt(half)}.`,</p>
-<p class="p1"><span class="Apple-converted-space">            </span>"warn"</p>
-<p class="p1"><span class="Apple-converted-space">          </span>);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stepBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>drawPlot(a, b, m, fm);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// interval update</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// pick subinterval where sign changes: [a,m] if f(a)*f(m) &lt; 0 else [m,b]</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (fa * fm &lt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>b = m;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>a = m;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>state.a = a;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>state.b = b;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>state.iter = k;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus(</p>
-<p class="p1"><span class="Apple-converted-space">          </span>`Iteration ${k}: m = ${fmt(m)}\nNew interval: [${fmt(a)}, ${fmt(b)}]\nCurrent error bound ≤ ${(fmt((b-a)/2))}`,</p>
-<p class="p1"><span class="Apple-converted-space">          </span>"ok"</p>
-<p class="p1"><span class="Apple-converted-space">        </span>);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>drawPlot(a, b, m, fm);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function run() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!state || state.done) return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const ms = Math.max(50, Math.floor(toNum(speedEl, "Run speed (ms)")));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>runBtn.disabled = true;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopBtn.disabled = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>timer = setInterval(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (!state || state.done) { stopRun(); return; }</p>
-<p class="p1"><span class="Apple-converted-space">          </span>try { oneStep(); } catch(e) { stopRun(); setStatus(String(e.message || e), "bad"); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}, ms);</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// --------- Plotting ---------</p>
-<p class="p1"><span class="Apple-converted-space">      </span>function resizeCanvasToCSS() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const rect = canvas.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const dpr = window.devicePixelRatio || 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>canvas.width<span class="Apple-converted-space">  </span>= Math.max(1, Math.round(rect.width * dpr));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>canvas.height = Math.max(1, Math.round(rect.height * dpr));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function drawAxes(xMin, xMax, yMin, yMax, pad) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.strokeStyle = "rgba(255,255,255,0.20)";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.lineWidth = 1;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// x-axis (y=0)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (yMin &lt; 0 &amp;&amp; yMax &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const y0 = mapY(0, yMin, yMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.moveTo(pad.l, y0);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.lineTo(canvas.clientWidth - pad.r, y0);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>// y-axis (x=0)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (xMin &lt; 0 &amp;&amp; xMax &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const x0 = mapX(0, xMin, xMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.moveTo(x0, pad.t);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.lineTo(x0, canvas.clientHeight - pad.b);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function mapX(x, xMin, xMax, pad) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const w = canvas.clientWidth - pad.l - pad.r;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return pad.l + (x - xMin) * (w / (xMax - xMin));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function mapY(y, yMin, yMax, pad) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const h = canvas.clientHeight - pad.t - pad.b;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>return pad.t + (yMax - y) * (h / (yMax - yMin));</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function drawVertical(x, xMin, xMax, pad, color) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.strokeStyle = color;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.lineWidth = 2;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const px = mapX(x, xMin, xMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.moveTo(px, pad.t);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.lineTo(px, canvas.clientHeight - pad.b);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function drawDot(x, y, xMin, xMax, yMin, yMax, pad, color) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillStyle = color;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const px = mapX(x, xMin, xMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const py = mapY(y, yMin, yMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.arc(px, py, 4, 0, Math.PI * 2);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.fill();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>function drawPlot(aMark, bMark, mMark, fmMark) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>resizeCanvasToCSS();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// If expression can't compile yet, draw a friendly message</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const expr = exprEl.value.trim();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!expr) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.fillStyle = "rgba(255,255,255,0.75)";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.font = "14px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.fillText("Enter f(x) to see the graph.", 16, 28);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Try compiling (lightweight) for plotting even before “Check”</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let localCompiled;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>try {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>localCompiled = compileExpr(expr);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} catch (e) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.fillStyle = "rgba(255,255,255,0.75)";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.font = "14px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.fillText("Invalid expression. Example: x^3 - x - 2", 16, 28);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>return;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Decide x-range (prefer current interval if available)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let a = Number(aEl.value), b = Number(bEl.value);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) { a = -2; b = 2; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (a &gt; b) [a, b] = [b, a];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const span = (b - a);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const xMin = a - 0.25 * span;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const xMax = b + 0.25 * span;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const pad = { l: 42, r: 14, t: 14, b: 30 };</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const N = 420;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Sample function</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const ys = [];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let yMin = Infinity, yMax = -Infinity;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; N; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const x = xMin + (i * (xMax - xMin)) / (N - 1);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>let y = NaN;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>try { y = Number(localCompiled.evaluate({ x })); } catch (_) {}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (Number.isFinite(y)) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ys.push({ x, y });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>yMin = Math.min(yMin, y);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>yMax = Math.max(yMax, y);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>ys.push({ x, y: NaN });</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (!Number.isFinite(yMin) || !Number.isFinite(yMax) || yMin === yMax) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>yMin = -1; yMax = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const margin = 0.12 * (yMax - yMin);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>yMin -= margin; yMax += margin;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// Background grid (light)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.strokeStyle = "rgba(255,255,255,0.06)";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.lineWidth = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let gx = 0; gx &lt;= 10; gx++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const x = pad.l + gx * ( (canvas.clientWidth - pad.l - pad.r) / 10 );</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.moveTo(x, pad.t);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.lineTo(x, canvas.clientHeight - pad.b);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let gy = 0; gy &lt;= 8; gy++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const y = pad.t + gy * ( (canvas.clientHeight - pad.t - pad.b) / 8 );</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.moveTo(pad.l, y);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.lineTo(canvas.clientWidth - pad.r, y);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// axes</p>
-<p class="p1"><span class="Apple-converted-space">        </span>drawAxes(xMin, xMax, yMin, yMax, pad);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// function curve</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.strokeStyle = "rgba(106,169,255,0.95)";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.lineWidth = 2;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.beginPath();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let started = false;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>for (let i = 0; i &lt; ys.length; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const { x, y } = ys[i];</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (!Number.isFinite(y)) { started = false; continue; }</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const px = mapX(x, xMin, xMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const py = mapY(y, yMin, yMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (!started) { ctx.moveTo(px, py); started = true; }</p>
-<p class="p1"><span class="Apple-converted-space">          </span>else { ctx.lineTo(px, py); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// labels</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillStyle = "rgba(255,255,255,0.65)";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.font = "12px system-ui";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillText("x", canvas.clientWidth - pad.r - 10, canvas.clientHeight - 10);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.fillText("y", pad.l - 16, pad.t + 12);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>ctx.restore();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// markers: current interval and midpoint (if available)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const A = (Number.isFinite(aMark) ? aMark : (state ? state.a : a));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const B = (Number.isFinite(bMark) ? bMark : (state ? state.b : b));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const M = (Number.isFinite(mMark) ? mMark : (Number.isFinite(A) &amp;&amp; Number.isFinite(B) ? (A+B)/2 : NaN));</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// interval lines</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (Number.isFinite(A)) drawVertical(A, xMin, xMax, pad, "rgba(45,212,191,0.75)");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (Number.isFinite(B)) drawVertical(B, xMin, xMax, pad, "rgba(251,113,133,0.75)");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (Number.isFinite(M)) drawVertical(M, xMin, xMax, pad, "rgba(251,191,36,0.75)");</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// midpoint dot (m, f(m))</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (Number.isFinite(M)) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>let fM = NaN;</p>
-<p class="p1"><span class="Apple-converted-space">          </span>try { fM = Number(localCompiled.evaluate({ x: M })); } catch(_) {}</p>
-<p class="p1"><span class="Apple-converted-space">          </span>if (Number.isFinite(fM)) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>drawDot(M, fM, xMin, xMax, yMin, yMax, pad, "rgba(251,191,36,0.95)");</p>
-<p class="p1"><span class="Apple-converted-space">          </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// x-axis intercept guide (y=0)</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (yMin &lt; 0 &amp;&amp; yMax &gt; 0) {</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.save();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.strokeStyle = "rgba(255,255,255,0.20)";</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.setLineDash([4,4]);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>const y0 = mapY(0, yMin, yMax, pad);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.beginPath();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.moveTo(pad.l, y0);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.lineTo(canvas.clientWidth - pad.r, y0);</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.stroke();</p>
-<p class="p1"><span class="Apple-converted-space">          </span>ctx.restore();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">      </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// events</p>
-<p class="p1"><span class="Apple-converted-space">      </span>checkBtn.addEventListener("click", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>try { checkInterval(); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>catch (e) { setStatus(String(e.message || e), "bad"); stepBtn.disabled = true; runBtn.disabled = true; stopRun(); drawPlot(); }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>stepBtn.addEventListener("click", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>try { oneStep(); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>catch (e) { setStatus(String(e.message || e), "bad"); stopRun(); }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>runBtn.addEventListener("click", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>try { run(); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>catch (e) { setStatus(String(e.message || e), "bad"); stopRun(); }</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>stopBtn.addEventListener("click", () =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopRun();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setStatus("Run stopped. You can continue with Step or Run again.", "warn");</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>resetBtn.addEventListener("click", resetAll);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// redraw on resize or input edits</p>
-<p class="p1"><span class="Apple-converted-space">      </span>window.addEventListener("resize", () =&gt; drawPlot());</p>
-<p class="p1"><span class="Apple-converted-space">      </span>["input", "change"].forEach(evt =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>exprEl.addEventListener(evt, () =&gt; drawPlot());</p>
-<p class="p1"><span class="Apple-converted-space">        </span>aEl.addEventListener(evt, () =&gt; drawPlot());</p>
-<p class="p1"><span class="Apple-converted-space">        </span>bEl.addEventListener(evt, () =&gt; drawPlot());</p>
-<p class="p1"><span class="Apple-converted-space">      </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">      </span>// initial draw</p>
-<p class="p1"><span class="Apple-converted-space">      </span>drawPlot();</p>
-<p class="p1"><span class="Apple-converted-space">    </span>})();</p>
-<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+  <div class="wrap">
+    <h1>Bisection Method Explorer</h1>
+    <p class="sub">
+      Type a function <span class="mono">f(x)</span>, choose an interval <span class="mono">[a,b]</span> with opposite signs, then
+      <b>Step</b> or <b>Run</b> the bisection method. Syntax examples:
+      <span class="pill mono">x^3 - x - 2</span>
+      <span class="pill mono">sin(x) - 0.5</span>
+      <span class="pill mono">exp(x) - 3</span>
+      (use <span class="mono">^</span> for powers).
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Inputs</h2>
+
+        <label for="expr">Function</label>
+        <input id="expr" value="x^3 - x - 2" />
+
+        <div class="row">
+          <div>
+            <label for="a">a</label>
+            <input id="a" type="number" step="any" value="1" />
+          </div>
+          <div>
+            <label for="b">b</label>
+            <input id="b" type="number" step="any" value="2" />
+          </div>
+        </div>
+
+        <div class="row3">
+          <div>
+            <label for="tol">Tolerance ε</label>
+            <input id="tol" type="number" step="any" value="1e-6" />
+          </div>
+          <div>
+            <label for="maxIter">Max iterations</label>
+            <input id="maxIter" type="number" step="1" min="1" value="50" />
+          </div>
+          <div>
+            <label for="speed">Run speed (ms)</label>
+            <input id="speed" type="number" step="50" min="50" value="350" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button id="checkBtn">Check interval</button>
+          <button id="stepBtn" disabled>Step</button>
+          <button id="runBtn" disabled>Run</button>
+          <button id="stopBtn" disabled>Stop</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+
+        <div id="status" class="status">Enter inputs, then click “Check interval”.</div>
+
+        <div class="hint">
+          Stopping conditions used here:
+          <span class="mono">|f(m)| = 0</span> (exact),
+          or <span class="mono">(b−a)/2 &lt; ε</span>,
+          or max iterations reached.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Graph</h2>
+        <canvas id="plot"></canvas>
+        <div class="footer">
+          Markers: <span class="mono">a</span>, <span class="mono">b</span>, and midpoint <span class="mono">m</span>.
+          If your function has a vertical asymptote inside the window, the plot may look “broken” (that’s normal).
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h2>Iterations</h2>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>k</th>
+              <th>a</th>
+              <th>b</th>
+              <th>m=(a+b)/2</th>
+              <th>f(a)</th>
+              <th>f(m)</th>
+              <th>(b−a)/2</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="footer">
+        Tip for teaching: have students predict whether the next interval becomes <span class="mono">[a,m]</span> or <span class="mono">[m,b]</span> based on the sign of <span class="mono">f(m)</span>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Math parser/evaluator -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.js"></script>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+
+      const exprEl = $("expr");
+      const aEl = $("a");
+      const bEl = $("b");
+      const tolEl = $("tol");
+      const maxIterEl = $("maxIter");
+      const speedEl = $("speed");
+
+      const checkBtn = $("checkBtn");
+      const stepBtn  = $("stepBtn");
+      const runBtn   = $("runBtn");
+      const stopBtn  = $("stopBtn");
+      const resetBtn = $("resetBtn");
+
+      const statusEl = $("status");
+      const tbodyEl  = $("tbody");
+
+      const canvas = $("plot");
+      const ctx = canvas.getContext("2d");
+
+      let compiled = null;
+      let state = null;
+      let timer = null;
+
+      function setStatus(msg, kind="") {
+        statusEl.className = "status" + (kind ? " " + kind : "");
+        statusEl.textContent = msg;
+      }
+
+      function toNum(el, name) {
+        const v = Number(el.value);
+        if (!Number.isFinite(v)) throw new Error(`${name} must be a number.`);
+        return v;
+      }
+
+      function fmt(x) {
+        if (!Number.isFinite(x)) return "NaN";
+        // compact, readable numeric format
+        const ax = Math.abs(x);
+        if (ax !== 0 && (ax < 1e-4 || ax >= 1e6)) return x.toExponential(6);
+        return x.toFixed(8).replace(/\.?0+$/,"");
+      }
+
+      function compileExpr(expr) {
+        // Disallow obvious assignment-like patterns; keep it simple & classroom-safe
+        if (/=|;|function|while|for|const|let|var|return|import|export/i.test(expr)) {
+          throw new Error("Please enter a math expression only (no '=', ';', or code keywords).");
+        }
+        const node = math.parse(expr);
+        return node.compile();
+      }
+
+      function f(x) {
+        const y = compiled.evaluate({ x });
+        return Number(y);
+      }
+
+      function clearTable() {
+        tbodyEl.innerHTML = "";
+      }
+
+      function addRow(k, a, b, m, fa, fm, half) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${k}</td>
+          <td>${fmt(a)}</td>
+          <td>${fmt(b)}</td>
+          <td>${fmt(m)}</td>
+          <td>${fmt(fa)}</td>
+          <td>${fmt(fm)}</td>
+          <td>${fmt(half)}</td>
+        `;
+        tbodyEl.appendChild(tr);
+      }
+
+      function stopRun() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+        stopBtn.disabled = true;
+        runBtn.disabled = !state || state.done;
+      }
+
+      function resetAll() {
+        stopRun();
+        compiled = null;
+        state = null;
+        clearTable();
+        setStatus("Enter inputs, then click “Check interval”.");
+        stepBtn.disabled = true;
+        runBtn.disabled = true;
+        drawPlot(); // still draw something if possible
+      }
+
+      function checkInterval() {
+        stopRun();
+        clearTable();
+
+        const expr = exprEl.value.trim();
+        let a = toNum(aEl, "a");
+        let b = toNum(bEl, "b");
+        const tol = Math.abs(toNum(tolEl, "Tolerance ε"));
+        const maxIter = Math.max(1, Math.floor(toNum(maxIterEl, "Max iterations")));
+
+        if (a === b) throw new Error("a and b must be different.");
+        if (tol === 0) throw new Error("Tolerance ε must be > 0.");
+
+        // Ensure a < b (swap if needed)
+        if (a > b) [a, b] = [b, a];
+
+        compiled = compileExpr(expr);
+
+        const fa = f(a);
+        const fb = f(b);
+
+        if (!Number.isFinite(fa) || !Number.isFinite(fb)) {
+          throw new Error("f(a) or f(b) is not a finite number. Try a different interval.");
+        }
+
+        // If an endpoint is exactly a root
+        if (fa === 0) {
+          state = { a, b, tol, maxIter, iter: 0, done: true };
+          addRow(0, a, b, a, fa, fa, (b - a)/2);
+          setStatus(`✅ f(a)=0 so x = ${fmt(a)} is an exact root.`, "ok");
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          drawPlot();
+          return;
+        }
+        if (fb === 0) {
+          state = { a, b, tol, maxIter, iter: 0, done: true };
+          addRow(0, a, b, b, fb, fb, (b - a)/2);
+          setStatus(`✅ f(b)=0 so x = ${fmt(b)} is an exact root.`, "ok");
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          drawPlot();
+          return;
+        }
+
+        if (fa * fb > 0) {
+          state = { a, b, tol, maxIter, iter: 0, done: true };
+          setStatus(
+            `❌ Bisection needs opposite signs.\nHere: f(a)=${fmt(fa)}, f(b)=${fmt(fb)} (same sign).\nChoose a new interval where f(a)·f(b) < 0.`,
+            "bad"
+          );
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          drawPlot();
+          return;
+        }
+
+        state = { a, b, tol, maxIter, iter: 0, done: false };
+        setStatus(
+          `✅ Interval is valid.\nf(a)=${fmt(fa)}, f(b)=${fmt(fb)} (opposite signs).\nClick “Step” to start.`,
+          "ok"
+        );
+        stepBtn.disabled = false;
+        runBtn.disabled = false;
+        stopBtn.disabled = true;
+        drawPlot();
+      }
+
+      function oneStep() {
+        if (!state || state.done) return;
+
+        let { a, b, tol, maxIter } = state;
+
+        const m = (a + b) / 2;
+        const fa = f(a);
+        const fm = f(m);
+
+        const half = (b - a) / 2;
+
+        const k = state.iter + 1;
+        addRow(k, a, b, m, fa, fm, half);
+
+        // stopping checks
+        if (fm === 0) {
+          state.done = true;
+          setStatus(`✅ Exact root found: x = ${fmt(m)} (because f(m)=0).`, "ok");
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          stopRun();
+          drawPlot(a, b, m, fm);
+          return;
+        }
+        if (half < tol) {
+          state.done = true;
+          setStatus(
+            `✅ Stopped: (b−a)/2 = ${fmt(half)} < ε = ${fmt(tol)}.\nApprox root x ≈ ${fmt(m)} with error bound ≤ ${fmt(half)}.`,
+            "ok"
+          );
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          stopRun();
+          drawPlot(a, b, m, fm);
+          return;
+        }
+        if (k >= maxIter) {
+          state.done = true;
+          setStatus(
+            `⚠️ Max iterations reached (k=${k}).\nApprox root x ≈ ${fmt(m)} with current error bound ≤ ${fmt(half)}.`,
+            "warn"
+          );
+          stepBtn.disabled = true;
+          runBtn.disabled = true;
+          stopRun();
+          drawPlot(a, b, m, fm);
+          return;
+        }
+
+        // interval update
+        // pick subinterval where sign changes: [a,m] if f(a)*f(m) < 0 else [m,b]
+        if (fa * fm < 0) {
+          b = m;
+        } else {
+          a = m;
+        }
+
+        state.a = a;
+        state.b = b;
+        state.iter = k;
+
+        setStatus(
+          `Iteration ${k}: m = ${fmt(m)}\nNew interval: [${fmt(a)}, ${fmt(b)}]\nCurrent error bound ≤ ${(fmt((b-a)/2))}`,
+          "ok"
+        );
+
+        drawPlot(a, b, m, fm);
+      }
+
+      function run() {
+        if (!state || state.done) return;
+        const ms = Math.max(50, Math.floor(toNum(speedEl, "Run speed (ms)")));
+        runBtn.disabled = true;
+        stopBtn.disabled = false;
+        timer = setInterval(() => {
+          if (!state || state.done) { stopRun(); return; }
+          try { oneStep(); } catch(e) { stopRun(); setStatus(String(e.message || e), "bad"); }
+        }, ms);
+      }
+
+      // --------- Plotting ---------
+      function resizeCanvasToCSS() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width  = Math.max(1, Math.round(rect.width * dpr));
+        canvas.height = Math.max(1, Math.round(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels
+      }
+
+      function drawAxes(xMin, xMax, yMin, yMax, pad) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,255,255,0.20)";
+        ctx.lineWidth = 1;
+
+        // x-axis (y=0)
+        if (yMin < 0 && yMax > 0) {
+          const y0 = mapY(0, yMin, yMax, pad);
+          ctx.beginPath();
+          ctx.moveTo(pad.l, y0);
+          ctx.lineTo(canvas.clientWidth - pad.r, y0);
+          ctx.stroke();
+        }
+        // y-axis (x=0)
+        if (xMin < 0 && xMax > 0) {
+          const x0 = mapX(0, xMin, xMax, pad);
+          ctx.beginPath();
+          ctx.moveTo(x0, pad.t);
+          ctx.lineTo(x0, canvas.clientHeight - pad.b);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      function mapX(x, xMin, xMax, pad) {
+        const w = canvas.clientWidth - pad.l - pad.r;
+        return pad.l + (x - xMin) * (w / (xMax - xMin));
+      }
+
+      function mapY(y, yMin, yMax, pad) {
+        const h = canvas.clientHeight - pad.t - pad.b;
+        return pad.t + (yMax - y) * (h / (yMax - yMin));
+      }
+
+      function drawVertical(x, xMin, xMax, pad, color) {
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        const px = mapX(x, xMin, xMax, pad);
+        ctx.beginPath();
+        ctx.moveTo(px, pad.t);
+        ctx.lineTo(px, canvas.clientHeight - pad.b);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawDot(x, y, xMin, xMax, yMin, yMax, pad, color) {
+        ctx.save();
+        ctx.fillStyle = color;
+        const px = mapX(x, xMin, xMax, pad);
+        const py = mapY(y, yMin, yMax, pad);
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawPlot(aMark, bMark, mMark, fmMark) {
+        resizeCanvasToCSS();
+
+        ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+        // If expression can't compile yet, draw a friendly message
+        const expr = exprEl.value.trim();
+        if (!expr) {
+          ctx.fillStyle = "rgba(255,255,255,0.75)";
+          ctx.font = "14px system-ui";
+          ctx.fillText("Enter f(x) to see the graph.", 16, 28);
+          return;
+        }
+
+        // Try compiling (lightweight) for plotting even before “Check”
+        let localCompiled;
+        try {
+          localCompiled = compileExpr(expr);
+        } catch (e) {
+          ctx.fillStyle = "rgba(255,255,255,0.75)";
+          ctx.font = "14px system-ui";
+          ctx.fillText("Invalid expression. Example: x^3 - x - 2", 16, 28);
+          return;
+        }
+
+        // Decide x-range (prefer current interval if available)
+        let a = Number(aEl.value), b = Number(bEl.value);
+        if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) { a = -2; b = 2; }
+        if (a > b) [a, b] = [b, a];
+
+        const span = (b - a);
+        const xMin = a - 0.25 * span;
+        const xMax = b + 0.25 * span;
+
+        const pad = { l: 42, r: 14, t: 14, b: 30 };
+        const N = 420;
+
+        // Sample function
+        const ys = [];
+        let yMin = Infinity, yMax = -Infinity;
+
+        for (let i = 0; i < N; i++) {
+          const x = xMin + (i * (xMax - xMin)) / (N - 1);
+          let y = NaN;
+          try { y = Number(localCompiled.evaluate({ x })); } catch (_) {}
+          if (Number.isFinite(y)) {
+            ys.push({ x, y });
+            yMin = Math.min(yMin, y);
+            yMax = Math.max(yMax, y);
+          } else {
+            ys.push({ x, y: NaN });
+          }
+        }
+
+        if (!Number.isFinite(yMin) || !Number.isFinite(yMax) || yMin === yMax) {
+          yMin = -1; yMax = 1;
+        } else {
+          const margin = 0.12 * (yMax - yMin);
+          yMin -= margin; yMax += margin;
+        }
+
+        // Background grid (light)
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.lineWidth = 1;
+        for (let gx = 0; gx <= 10; gx++) {
+          const x = pad.l + gx * ( (canvas.clientWidth - pad.l - pad.r) / 10 );
+          ctx.beginPath();
+          ctx.moveTo(x, pad.t);
+          ctx.lineTo(x, canvas.clientHeight - pad.b);
+          ctx.stroke();
+        }
+        for (let gy = 0; gy <= 8; gy++) {
+          const y = pad.t + gy * ( (canvas.clientHeight - pad.t - pad.b) / 8 );
+          ctx.beginPath();
+          ctx.moveTo(pad.l, y);
+          ctx.lineTo(canvas.clientWidth - pad.r, y);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // axes
+        drawAxes(xMin, xMax, yMin, yMax, pad);
+
+        // function curve
+        ctx.save();
+        ctx.strokeStyle = "rgba(106,169,255,0.95)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        let started = false;
+        for (let i = 0; i < ys.length; i++) {
+          const { x, y } = ys[i];
+          if (!Number.isFinite(y)) { started = false; continue; }
+          const px = mapX(x, xMin, xMax, pad);
+          const py = mapY(y, yMin, yMax, pad);
+          if (!started) { ctx.moveTo(px, py); started = true; }
+          else { ctx.lineTo(px, py); }
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // labels
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.65)";
+        ctx.font = "12px system-ui";
+        ctx.fillText("x", canvas.clientWidth - pad.r - 10, canvas.clientHeight - 10);
+        ctx.fillText("y", pad.l - 16, pad.t + 12);
+        ctx.restore();
+
+        // markers: current interval and midpoint (if available)
+        const A = (Number.isFinite(aMark) ? aMark : (state ? state.a : a));
+        const B = (Number.isFinite(bMark) ? bMark : (state ? state.b : b));
+        const M = (Number.isFinite(mMark) ? mMark : (Number.isFinite(A) && Number.isFinite(B) ? (A+B)/2 : NaN));
+
+        // interval lines
+        if (Number.isFinite(A)) drawVertical(A, xMin, xMax, pad, "rgba(45,212,191,0.75)");
+        if (Number.isFinite(B)) drawVertical(B, xMin, xMax, pad, "rgba(251,113,133,0.75)");
+        if (Number.isFinite(M)) drawVertical(M, xMin, xMax, pad, "rgba(251,191,36,0.75)");
+
+        // midpoint dot (m, f(m))
+        if (Number.isFinite(M)) {
+          let fM = NaN;
+          try { fM = Number(localCompiled.evaluate({ x: M })); } catch(_) {}
+          if (Number.isFinite(fM)) {
+            drawDot(M, fM, xMin, xMax, yMin, yMax, pad, "rgba(251,191,36,0.95)");
+          }
+        }
+
+        // x-axis intercept guide (y=0)
+        if (yMin < 0 && yMax > 0) {
+          ctx.save();
+          ctx.strokeStyle = "rgba(255,255,255,0.20)";
+          ctx.setLineDash([4,4]);
+          const y0 = mapY(0, yMin, yMax, pad);
+          ctx.beginPath();
+          ctx.moveTo(pad.l, y0);
+          ctx.lineTo(canvas.clientWidth - pad.r, y0);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      // events
+      checkBtn.addEventListener("click", () => {
+        try { checkInterval(); }
+        catch (e) { setStatus(String(e.message || e), "bad"); stepBtn.disabled = true; runBtn.disabled = true; stopRun(); drawPlot(); }
+      });
+
+      stepBtn.addEventListener("click", () => {
+        try { oneStep(); }
+        catch (e) { setStatus(String(e.message || e), "bad"); stopRun(); }
+      });
+
+      runBtn.addEventListener("click", () => {
+        try { run(); }
+        catch (e) { setStatus(String(e.message || e), "bad"); stopRun(); }
+      });
+
+      stopBtn.addEventListener("click", () => {
+        stopRun();
+        setStatus("Run stopped. You can continue with Step or Run again.", "warn");
+      });
+
+      resetBtn.addEventListener("click", resetAll);
+
+      // redraw on resize or input edits
+      window.addEventListener("resize", () => drawPlot());
+      ["input", "change"].forEach(evt => {
+        exprEl.addEventListener(evt, () => drawPlot());
+        aEl.addEventListener(evt, () => drawPlot());
+        bEl.addEventListener(evt, () => drawPlot());
+      });
+
+      // initial draw
+      drawPlot();
+    })();
+  </script>
 </body>
 </html>
